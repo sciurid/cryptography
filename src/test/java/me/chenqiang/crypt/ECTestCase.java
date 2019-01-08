@@ -1,23 +1,22 @@
-package me.chenqiang.crypt.rsa;
+package me.chenqiang.crypt;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.SignatureException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 
 import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RSATestCase {
+public class ECTestCase {
 	
 	public static final String PLAIN = "噫吁嚱！危乎高哉！蜀道之难，难于上青天。"
 			+ "蚕丛及鱼凫，开国何茫然！尔来四万八千岁，不与秦塞通人烟。"
@@ -34,37 +33,22 @@ public class RSATestCase {
 			+ "锦城虽云乐，不如早还家。"
 			+ "蜀道之难，难于上青天，侧身西望长咨嗟。";
 	
-	protected RSAPrivateKey privateKey;
-	protected RSAPublicKey publicKey;
+	protected ECPrivateKey privateKey;
+	protected ECPublicKey publicKey;
 	
 	@Before
 	public void initialize() throws NoSuchAlgorithmException {
-		KeyPairGenerator keygen = KeyPairGenerator.getInstance(RSAFunctions.RSA);
-		SecureRandom random = new SecureRandom();
-		random.setSeed(System.currentTimeMillis());
-		keygen.initialize(2048, random);
-		KeyPair kp =  keygen.generateKeyPair();
-		this.privateKey = (RSAPrivateKey)kp.getPrivate();
-		this.publicKey = (RSAPublicKey)kp.getPublic();
+		KeyPair kp = ECCFunctions.generateKeyPair(256);
+		this.privateKey = (ECPrivateKey)kp.getPrivate();
+		this.publicKey = (ECPublicKey)kp.getPublic();
 	}
 	
 	@Test
-	public void testEcbPkcs1() 
-			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException {
+	public void testEncrytion() 
+			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
 		byte [] source = PLAIN.getBytes("UTF-8");
-		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_ECB_PKCS1, RSAFunctions.PADDING_DIMINUTION_PKCS1, source);
-		byte [] dest = RSAFunctions.decrypt(publicKey, RSAFunctions.RSA_ECB_PKCS1, secret);
-		String result = new String(dest, "UTF-8");
-		Assert.assertEquals("解密错误", PLAIN, result);
-		System.out.println(result);
-	}
-	
-	@Test
-	public void testEcbOaep() 
-			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException {
-		byte [] source = PLAIN.getBytes("UTF-8");
-		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_ECB_OAEP, RSAFunctions.PADDING_DIMINUTION_OAEP, source);
-		byte [] dest = RSAFunctions.decrypt(publicKey, RSAFunctions.RSA_ECB_OAEP, secret);
+		byte [] secret = ECCFunctions.encrypt(this.publicKey, source);
+		byte [] dest = ECCFunctions.decrypt(this.privateKey, secret);
 		String result = new String(dest, "UTF-8");
 		Assert.assertEquals("解密错误", PLAIN, result);
 		System.out.println(result);
@@ -73,12 +57,9 @@ public class RSATestCase {
 	@Test
 	public void testSignature() throws UnsupportedEncodingException, InvalidKeyException, SignatureException, NoSuchAlgorithmException {
 		byte [] source = PLAIN.getBytes("UTF-8");
-		for(String algorithm : new String[] {
-				RSAFunctions.MD5_RSA, RSAFunctions.SHA1_RSA, RSAFunctions.SHA256_RSA,
-				RSAFunctions.SHA384_RSA, RSAFunctions.SHA512_RSA}) {
-
-			byte [] sig = RSAFunctions.sign(privateKey, source, algorithm);
-			boolean result = RSAFunctions.verify(publicKey, source, sig, algorithm);
+		for(String algorithm : new String[] {"NONEwithECDSA", "SHA1withECDSA", "SHA224withECDSA", "SHA256withECDSA", "SHA384withECDSA", "SHA512withECDSA"}) {
+			byte [] sig = SignFunctions.sign(privateKey, source, algorithm);
+			boolean result = SignFunctions.verify(publicKey, source, sig, algorithm);
 			Assert.assertTrue("签名错误", result);
 		}		
 	}

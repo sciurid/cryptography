@@ -1,4 +1,4 @@
-package me.chenqiang.crypt.rsa;
+package me.chenqiang.crypt;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -9,6 +9,8 @@ import javax.crypto.interfaces.DHPublicKey;
 
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Test;
+
+import me.chenqiang.crypt.DHKeyExchange;
 
 import org.junit.Assert;
 

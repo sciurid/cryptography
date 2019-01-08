@@ -1,14 +1,11 @@
-package me.chenqiang.crypt.rsa;
+package me.chenqiang.crypt;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.KeyAgreement;
 import javax.crypto.SecretKey;
@@ -33,21 +30,7 @@ public class DHKeyExchange {
 	public DHPrivateKey getPrivateKey() {
 		return this.privateKey;
 	}
-	
-	public static DHPublicKey parseX509(byte [] x509) 
-			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(x509);
-        KeyFactory keyFactory = KeyFactory.getInstance(DH_KEY_ALGORITHM);
-        return (DHPublicKey)keyFactory.generatePublic(keySpec);
-	}
-	
-	public static DHPrivateKey parsePKCS1(byte [] pkcs1) 
-			throws NoSuchAlgorithmException, InvalidKeySpecException {
-		PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(pkcs1);
-        KeyFactory keyFactory = KeyFactory.getInstance(DH_KEY_ALGORITHM);
-        return (DHPrivateKey) keyFactory.generatePrivate(pkcs8EncodedKeySpec);
-	}
-	
+
 	public void initialize(int keySize) 
 			throws NoSuchAlgorithmException {
 		KeyPairGenerator kpg = KeyPairGenerator.getInstance(DH_KEY_ALGORITHM);
@@ -57,9 +40,9 @@ public class DHKeyExchange {
 		this.privateKey = (DHPrivateKey) keyPair.getPrivate();
 	}
 	
-	public void initialize(DHPublicKey receivedkey) 
+	public void initialize(DHPublicKey receivedKey) 
 			throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
-		DHParameterSpec dhSpec = receivedkey.getParams();
+		DHParameterSpec dhSpec = receivedKey.getParams();
 		KeyPairGenerator kpg = KeyPairGenerator.getInstance(DH_KEY_ALGORITHM);
 		kpg.initialize(dhSpec);
 		KeyPair keyPair = kpg.generateKeyPair();
@@ -69,7 +52,7 @@ public class DHKeyExchange {
 	
 	public void initialize(byte [] x509ReceivedKeyData) 
 			throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException {
-        this.initialize(parseX509(x509ReceivedKeyData));
+        this.initialize((DHPublicKey)KeyIOUtils.parseX509(x509ReceivedKeyData, DH_KEY_ALGORITHM));
 	}
 	
 	public static SecretKey createLocalSecretKey(DHPrivateKey priKey, DHPublicKey pubKey, String algorithm) 
