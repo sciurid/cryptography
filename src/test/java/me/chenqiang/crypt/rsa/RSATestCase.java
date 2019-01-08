@@ -9,7 +9,6 @@ import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.NoSuchPaddingException;
