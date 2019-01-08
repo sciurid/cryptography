@@ -13,6 +13,7 @@ import java.security.interfaces.RSAPublicKey;
 import javax.crypto.BadPaddingException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,7 +55,7 @@ public class RSATestCase {
 		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_ECB_PKCS1, RSAFunctions.PADDING_DIMINUTION_PKCS1, source);
 		byte [] dest = RSAFunctions.decrypt(publicKey, RSAFunctions.RSA_ECB_PKCS1, secret);
 		String result = new String(dest, "UTF-8");
-		assert PLAIN.equals(result) : "解密错误";
+		Assert.assertEquals("解密错误", PLAIN, result);
 		System.out.println(result);
 	}
 	
@@ -65,7 +66,7 @@ public class RSATestCase {
 		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_ECB_OAEP, RSAFunctions.PADDING_DIMINUTION_OAEP, source);
 		byte [] dest = RSAFunctions.decrypt(publicKey, RSAFunctions.RSA_ECB_OAEP, secret);
 		String result = new String(dest, "UTF-8");
-		assert PLAIN.equals(result) : "解密错误";
+		Assert.assertEquals("解密错误", PLAIN, result);
 		System.out.println(result);
 	}
 	
@@ -78,8 +79,7 @@ public class RSATestCase {
 
 			byte [] sig = RSAFunctions.sign(privateKey, source, algorithm);
 			boolean result = RSAFunctions.verify(publicKey, source, sig, algorithm);
-			System.out.println(result);
-			assert result : "签名错误";
+			Assert.assertTrue("签名错误", result);
 		}		
 	}
 }

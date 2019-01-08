@@ -10,6 +10,8 @@ import javax.crypto.interfaces.DHPublicKey;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Test;
 
+import org.junit.Assert;
+
 public class DHTestCase {
 	@Test
 	public void exchageKey() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
@@ -29,7 +31,7 @@ public class DHTestCase {
 			
 			System.out.println(hexA);
 			System.out.println(hexB);
-			assert hexA.equals(hexB) : "交换失败";			
+			Assert.assertEquals("交换失败", hexA, hexB);
 		}
 	}
 }
