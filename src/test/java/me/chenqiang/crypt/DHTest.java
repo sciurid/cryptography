@@ -10,23 +10,23 @@ import javax.crypto.interfaces.DHPublicKey;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Test;
 
-import me.chenqiang.crypt.DHKeyExchange;
+import me.chenqiang.crypt.DhKeyExchange;
 
 import org.junit.Assert;
 
-public class DHTestCase {
+public class DHTest {
 	@Test
 	public void exchageKey() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
-		DHKeyExchange partyA = new DHKeyExchange();
+		DhKeyExchange partyA = new DhKeyExchange();
 		partyA.initialize(2048);
 		
 		DHPublicKey pubA = partyA.getPublicKey();
-		DHKeyExchange partyB = new DHKeyExchange();
+		DhKeyExchange partyB = new DhKeyExchange();
 		partyB.initialize(pubA);
 		
 		for(String algorithm : new String[] {"AES", "DES", "DESede"}) {
-			SecretKey secretKeyA = DHKeyExchange.createLocalSecretKey(partyA.getPrivateKey(), partyB.getPublicKey(), algorithm);
-			SecretKey secretKeyB = DHKeyExchange.createLocalSecretKey(partyB.getPrivateKey(), partyA.getPublicKey(), algorithm);
+			SecretKey secretKeyA = DhKeyExchange.createLocalSecretKey(partyA.getPrivateKey(), partyB.getPublicKey(), algorithm);
+			SecretKey secretKeyB = DhKeyExchange.createLocalSecretKey(partyB.getPrivateKey(), partyA.getPublicKey(), algorithm);
 			
 			String hexA = Hex.encodeHexString(secretKeyA.getEncoded());
 			String hexB = Hex.encodeHexString(secretKeyB.getEncoded());

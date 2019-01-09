@@ -14,6 +14,7 @@ public interface SignFunctions {
 	 * 使用私钥签名。
 	 * @param key 密钥
 	 * @param data 数据
+	 * @param algorithm 算法
 	 * @return 签名
 	 * @throws InvalidKeyException
 	 * @throws SignatureException
@@ -32,6 +33,7 @@ public interface SignFunctions {
 	 * @param key 密钥
 	 * @param data 数据
 	 * @param sig 签名
+	 * @param algorithm 算法
 	 * @return 签名是否正确
 	 * @throws SignatureException
 	 * @throws InvalidKeyException

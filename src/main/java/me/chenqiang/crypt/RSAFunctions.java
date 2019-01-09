@@ -1,12 +1,20 @@
 package me.chenqiang.crypt;
 
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAKey;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -14,12 +22,9 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class RSAFunctions {
+public class RSAFunctions implements SignFunctions{
 	private RSAFunctions() {}
-	private static final Logger LOGGER = LoggerFactory.getLogger(RSAFunctions.class);
 	
 	public static final int PADDING_DIMINUTION_PKCS1 = 11;
 	public static final int PADDING_DIMINUTION_OAEP = 42;
@@ -47,6 +52,26 @@ public class RSAFunctions {
 		keygen.initialize(keySize, random);
 		return keygen.generateKeyPair();
 	}
+	
+	public static RSAPrivateKey createPrivateKey(final BigInteger modulus, final BigInteger privateComponent) 
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(modulus, privateComponent);
+		KeyFactory keyFactory = KeyFactory.getInstance(RSA);
+		return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+	}
+	
+	public static RSAPublicKey createPublicKey(final BigInteger modulus, final BigInteger publicComponent) 
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, publicComponent);
+		KeyFactory keyFactory = KeyFactory.getInstance(RSA);
+		return (RSAPublicKey) keyFactory.generatePublic(keySpec);
+	}
+	
+	public static RSAPublicKey createPublicKey(RSAPrivateCrtKey privateKey) 
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		return createPublicKey(privateKey.getModulus(), privateKey.getPublicExponent());
+	}
+	
 		
 	/**
 	 * 从字节数据中复制出一段的函数
@@ -79,26 +104,26 @@ public class RSAFunctions {
 	 * @param source 明文数据
 	 * @return	密文数据
 	 * @throws BadPaddingException
+	 * @throws IllegalBlockSizeException 
 	 */
 			
-	protected static byte [] encrypt(Cipher cipher, int keyBitLength, int paddingLength, byte [] source) throws BadPaddingException {
-		int keyByteLength = keyBitLength / 8; //字节数
+	protected static byte [] encrypt(Cipher cipher, int keyBitLength, int paddingLength, byte [] source) 
+			throws BadPaddingException, IllegalBlockSizeException {
+		//字节数
+		int keyByteLength = keyBitLength / 8; 
 		int sliceByteLength = keyByteLength - paddingLength; //
 		int sliceNum = source.length / sliceByteLength + 1;
 		byte[] result = new byte[sliceNum * keyByteLength];
 		
-		int i = 0; //原文游标
-		int j = 0; //密文游标
+		//原文游标
+		int i = 0; 
+		//密文游标
+		int j = 0; 
 		
 		while(i < source.length) {
 			byte[] slice = subarray(source, i, i + sliceByteLength);
-			try {
-				byte[] encrypted = cipher.doFinal(slice);
-				System.arraycopy(encrypted, 0, result, j, keyByteLength);
-			} catch (IllegalBlockSizeException e) {
-				LOGGER.error(SHALL_NOT_HAPPEN, e);
-				return ERROR_RESULT;
-			}
+			byte[] encrypted = cipher.doFinal(slice);
+			System.arraycopy(encrypted, 0, result, j, keyByteLength);
 			i += sliceByteLength;
 			j += keyByteLength;
 		}
@@ -114,22 +139,18 @@ public class RSAFunctions {
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
 	 */
-	protected static byte [] decrypt(Cipher cipher, int keyBitLength, byte [] secret) throws BadPaddingException {
+	protected static byte [] decrypt(Cipher cipher, int keyBitLength, byte [] secret) 
+			throws BadPaddingException, IllegalBlockSizeException {
 		int keyByteLength = keyBitLength / 8;
-		
-		int i = 0; //密文游标
-		int j = 0; //原文游标
-		
-		byte[] result = new byte[secret.length]; //每块都不超过密文长度，因此最长也不会超过密文长度
+		//密文游标
+		int i = 0; 
+		//原文游标
+		int j = 0; 
+		//每块都不超过密文长度，因此最长也不会超过密文长度
+		byte[] result = new byte[secret.length]; 
 		while(i < secret.length) {
-			byte[] plainPart;
-			try {
-				plainPart = cipher.doFinal(subarray(secret, i,  i + keyByteLength));
-				System.arraycopy(plainPart, 0, result, j, plainPart.length);
-			} catch (IllegalBlockSizeException e) {
-				LOGGER.error(SHALL_NOT_HAPPEN, e);
-				return ERROR_RESULT;
-			}
+			byte[] plainPart = cipher.doFinal(subarray(secret, i,  i + keyByteLength));
+			System.arraycopy(plainPart, 0, result, j, plainPart.length);
 			i += keyByteLength;
 			j += plainPart.length;
 		}
@@ -145,10 +166,12 @@ public class RSAFunctions {
 	 * @throws NoSuchAlgorithmException 
 	 * @throws InvalidKeyException 
 	 * @throws BadPaddingException 
+	 * @throws IllegalBlockSizeException 
 	 * @throws Exception
 	 */
 	public static byte[] encrypt(RSAKey key, String transformation, int paddingDiminution, byte [] input) 
-			throws NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidKeyException    {
+			throws NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, 
+			InvalidKeyException, IllegalBlockSizeException    {
 		Cipher cipher = Cipher.getInstance(transformation, new BouncyCastleProvider());
 		cipher.init(Cipher.ENCRYPT_MODE, (Key)key);
 		return encrypt(cipher, key.getModulus().bitLength(), paddingDiminution, input);
@@ -162,10 +185,12 @@ public class RSAFunctions {
 	 * @throws NoSuchAlgorithmException 
 	 * @throws InvalidKeyException 
 	 * @throws BadPaddingException 
+	 * @throws IllegalBlockSizeException 
 	 * @throws Exception
 	 */
 	public static byte[] decrypt(RSAKey key, String transformation, byte [] input) 
-			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException  {
+			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, 
+			BadPaddingException, IllegalBlockSizeException  {
 		Cipher cipher = Cipher.getInstance(transformation, new BouncyCastleProvider());
 		cipher.init(Cipher.DECRYPT_MODE, (Key)key);
 		return decrypt(cipher, key.getModulus().bitLength(), input);

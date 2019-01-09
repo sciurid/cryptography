@@ -13,7 +13,7 @@ import javax.crypto.interfaces.DHPrivateKey;
 import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
 
-public class DHKeyExchange {
+public class DhKeyExchange {
 	public static final String DH_KEY_ALGORITHM = "DH";
 	
 	public static final String AES = "AES";
