@@ -35,8 +35,8 @@ import org.bouncycastle.util.io.pem.PemObject;
  * @author CHEN Qiang
  *
  */
-public final class PemUtils {
-	private PemUtils() {}
+public final class PemFormatUtils {
+	private PemFormatUtils() {}
 	
 	/**
 	 * 将公钥以X509.1格式写入pem文件。

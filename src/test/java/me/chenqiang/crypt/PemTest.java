@@ -53,14 +53,14 @@ public class PemTest {
 		KeyPair kp = null;
 		try(InputStreamReader reader =
 				new InputStreamReader(PemTest.class.getResourceAsStream("rsa-private.pem"))) {
-			kp = (KeyPair)PemUtils.readPem(reader, null);
+			kp = (KeyPair)PemFormatUtils.readPem(reader, null);
 		}
 
 		// 比较PKCS1和PKCS8的PEM编码文件中获得的私钥
 		RSAPrivateKey privOrigin = (RSAPrivateKey) kp.getPrivate();
 		try(InputStreamReader reader =
 				new InputStreamReader(PemTest.class.getResourceAsStream("rsa-private-pkcs8.pem"))) {
-			RSAPrivateCrtKey privPkcs8Pem = (RSAPrivateCrtKey)PemUtils.readPem(reader, null);
+			RSAPrivateCrtKey privPkcs8Pem = (RSAPrivateCrtKey)PemFormatUtils.readPem(reader, null);
 			Assert.assertEquals(privOrigin, privPkcs8Pem);
 		}
 				
@@ -77,16 +77,14 @@ public class PemTest {
 		}
 		
 		// 从rsa-private-pkcs8.der文件中读出私钥数据生成私钥，和privOrigin相等的
-		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(data);
-		KeyFactory kf = KeyFactory.getInstance(RSAFunctions.RSA);
-		RSAPrivateKey privDerPkcs8 =  (RSAPrivateKey) kf.generatePrivate(keySpec);		
+		RSAPrivateKey privDerPkcs8 =  (RSAPrivateKey) KeyIOUtils.parsePKCS8(data, RSAFunctions.RSA);	
 		Assert.assertEquals(privOrigin, privDerPkcs8);
 		
 		//比较PEM格式的公钥
 		RSAPublicKey pubOrigin = (RSAPublicKey) kp.getPublic();
 		try(InputStreamReader reader = 
 				new InputStreamReader(PemTest.class.getResourceAsStream("rsa-public.pem"))) {
-			RSAPublicKey pubPem = (RSAPublicKey) PemUtils.readPem(reader, null);
+			RSAPublicKey pubPem = (RSAPublicKey) PemFormatUtils.readPem(reader, null);
 			Assert.assertEquals(pubOrigin, pubPem);
 		}
 		
@@ -102,8 +100,7 @@ public class PemTest {
 		}
 		
 		//从DER格式的公钥文件中读出公钥，和pubOrigin对比
-		X509EncodedKeySpec x509 = new X509EncodedKeySpec(data);
-		RSAPublicKey pubDer = (RSAPublicKey) kf.generatePublic(x509);
+		RSAPublicKey pubDer = (RSAPublicKey) KeyIOUtils.parseX509(data, RSAFunctions.RSA);
 		Assert.assertEquals(pubOrigin, pubDer);
 	}
 }

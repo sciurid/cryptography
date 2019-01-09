@@ -9,6 +9,11 @@ import java.security.SignatureException;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+/**
+ * 非对称加密算法进行签名和验证的通用过程。
+ * @author CHEN Qiang
+ *
+ */
 public interface SignFunctions {
 	/**
 	 * 使用私钥签名。
