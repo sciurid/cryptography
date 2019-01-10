@@ -12,7 +12,7 @@ import java.security.spec.X509EncodedKeySpec;
  * 实现X509.1编码数据和PublicKey，PKCS8编码数据和PrivateKey的转换方法。
  * @see java.security.PublicKey#getEncoded
  * @see java.security.PrivateKey#getEncoded
- * @author  CHEN Qiang
+ * @author CHEN Qiang
  *
  */
 public interface KeyIOUtils {

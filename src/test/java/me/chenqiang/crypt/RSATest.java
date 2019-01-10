@@ -4,14 +4,19 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.security.SignatureException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +43,7 @@ public class RSATest {
 	
 	@Before
 	public void initialize() throws NoSuchAlgorithmException {
+		Security.addProvider(new BouncyCastleProvider());
 		KeyPair kp = RSAFunctions.generateKeyPair(2048);
 		this.privateKey = (RSAPrivateKey)kp.getPrivate();
 		this.publicKey = (RSAPublicKey)kp.getPublic();
@@ -47,19 +53,53 @@ public class RSATest {
 	public void testEcbPkcs1() 
 			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
 		byte [] source = PLAIN.getBytes("UTF-8");
-		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_ECB_PKCS1, RSAFunctions.PADDING_DIMINUTION_PKCS1, source);
-		byte [] dest = RSAFunctions.decrypt(publicKey, RSAFunctions.RSA_ECB_PKCS1, secret);
+		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_PKCS1, source);
+		byte [] dest = RSAFunctions.decrypt(publicKey, RSAFunctions.RSA_PKCS1, secret);
 		String result = new String(dest, "UTF-8");
 		Assert.assertEquals("解密错误", PLAIN, result);
 		System.out.println(result);
 	}
 	
 	@Test
+	public void listPaddingDiminution() 
+			throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, NoSuchProviderException {
+		String [] transformations = {
+				RSAFunctions.RSA_PKCS1,
+				RSAFunctions.RSA_NO,
+				RSAFunctions.RSA_OAEP,
+				RSAFunctions.RSA_OAEP_MD5_MGF1,
+				RSAFunctions.RSA_OAEP_SHA1_MGF1,
+				RSAFunctions.RSA_OAEP_SHA224_MGF1,
+				RSAFunctions.RSA_OAEP_SHA256_MGF1,
+				RSAFunctions.RSA_OAEP_SHA384_MGF1,
+				RSAFunctions.RSA_OAEP_SHA512_MGF1,
+				RSAFunctions.RSA_OAEP_SHA3224_MGF1,
+				RSAFunctions.RSA_OAEP_SHA3256_MGF1,
+				RSAFunctions.RSA_OAEP_SHA3384_MGF1,
+				RSAFunctions.RSA_OAEP_SHA3512_MGF1
+		};
+		for(String trans : transformations) {
+			for(int i = 256; i > 0; i--) {
+				try {
+					Cipher cipher = Cipher.getInstance(trans, BouncyCastleProvider.PROVIDER_NAME);
+					cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+					RSAFunctions.encrypt(cipher, privateKey.getModulus().bitLength(), 0, new byte[i]);
+				}
+				catch(Exception e) {
+					continue;
+				}
+				System.out.println(trans + ", " + (256 - i));
+				break;
+			}
+		}
+	}
+	@Test
 	public void testEcbOaep() 
 			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
+		
 		byte [] source = PLAIN.getBytes("UTF-8");
-		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_ECB_OAEP, RSAFunctions.PADDING_DIMINUTION_OAEP, source);
-		byte [] dest = RSAFunctions.decrypt(publicKey, RSAFunctions.RSA_ECB_OAEP, secret);
+		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_OAEP_SHA256_MGF1, source);
+		byte [] dest = RSAFunctions.decrypt(publicKey, RSAFunctions.RSA_OAEP_SHA256_MGF1, secret);
 		String result = new String(dest, "UTF-8");
 		Assert.assertEquals("解密错误", PLAIN, result);
 		System.out.println(result);
