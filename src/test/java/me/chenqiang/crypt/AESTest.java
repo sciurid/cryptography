@@ -69,7 +69,7 @@ public class AESTest {
 			try {
 				ciphertext = AESFunctions.encrypt(this.key, trans, longPlain);
 				decrypted = AESFunctions.decrypt(this.key, trans, ciphertext);
-				Assert.assertEquals(new String(decrypted), LONG_STR);
+				Assert.assertEquals(new String(decrypted, "UTF-8"), LONG_STR);
 				System.out.println(String.format("[BLOCK1 LONG]%s -> SUCCESS", trans));
 			}
 			catch(Exception e) {
@@ -79,7 +79,7 @@ public class AESTest {
 			try {
 				ciphertext = AESFunctions.encrypt(this.key, trans, shortPlain);
 				decrypted = AESFunctions.decrypt(this.key, trans, ciphertext);
-				Assert.assertEquals(new String(decrypted), SHORT_STR);
+				Assert.assertEquals(new String(decrypted, "UTF-8"), SHORT_STR);
 				System.out.println(String.format("[BLOCK1 SHORT]%s -> SUCCESS", trans));
 			}
 			catch(Exception e) {
@@ -100,7 +100,7 @@ public class AESTest {
 			try {
 				ciphertext = AESFunctions.encrypt(this.key, trans, iv, shortPlain);
 				decrypted = AESFunctions.decrypt(this.key, trans, iv, ciphertext);
-				Assert.assertEquals(new String(decrypted), SHORT_STR);
+				Assert.assertEquals(new String(decrypted, "UTF-8"), SHORT_STR);
 				System.out.println(String.format("[BLOCK2 LONG]%s -> SUCCESS", trans));
 			}
 			catch(Exception e) {
@@ -109,7 +109,7 @@ public class AESTest {
 			try {
 				ciphertext = AESFunctions.encrypt(this.key, trans, iv, longPlain);
 				decrypted = AESFunctions.decrypt(this.key, trans, iv, ciphertext);
-				Assert.assertEquals(new String(decrypted), LONG_STR);
+				Assert.assertEquals(new String(decrypted, "UTF-8"), LONG_STR);
 				System.out.println(String.format("[BLOCK2 LONG]%s -> SUCCESS", trans));
 			}
 			catch(Exception e) {
