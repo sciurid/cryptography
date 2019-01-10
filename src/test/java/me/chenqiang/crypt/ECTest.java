@@ -5,6 +5,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -39,7 +40,7 @@ public class ECTest {
 	
 	@Before
 	public void initialize() 
-			throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+			throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException {
 		KeyPair kp = ECCFunctions.generateKeyPair(ECCFunctions.CURVE25519);
 		this.privateKey = (ECPrivateKey)kp.getPrivate();
 		this.publicKey = (ECPublicKey)kp.getPublic();

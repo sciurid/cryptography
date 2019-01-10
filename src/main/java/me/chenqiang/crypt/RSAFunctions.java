@@ -15,6 +15,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -26,15 +29,42 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class RSAFunctions implements SignFunctions{
 	private RSAFunctions() {}
 	
-	public static final int PADDING_DIMINUTION_PKCS1 = 11;
-	public static final int PADDING_DIMINUTION_OAEP = 42;
-	
 	public static final String RSA = "RSA";
 	
-	public static final String RSA_ECB_PKCS1 = "RSA/ECB/PKCS1Padding";
-	public static final String RSA_ECB_OAEP = "RSA/ECB/OAEPPadding";
-	public static final String RSA_CBC_PKCS1 = "RSA/CBC/PKCS1Padding";
-	public static final String RSA_CBC_OAEP = "RSA/CBC/OAEPPadding";
+	public static final String RSA_PKCS1 = "RSA/ECB/PKCS1Padding";
+	public static final String RSA_NO = "RSA/ECB/NoPadding";
+	// OAEPPadding的默认值是OAEPWithSHA1AndMGF1Padding
+	public static final String RSA_OAEP = "RSA/ECB/OAEPPadding";
+	public static final String RSA_OAEP_MD5_MGF1 = "RSA/ECB/OAEPWithMD5AndMGF1Padding";
+	public static final String RSA_OAEP_SHA1_MGF1 = "RSA/ECB/OAEPWithSHA1AndMGF1Padding";
+	public static final String RSA_OAEP_SHA224_MGF1 = "RSA/ECB/OAEPWithSHA224AndMGF1Padding";
+	public static final String RSA_OAEP_SHA256_MGF1 = "RSA/ECB/OAEPWithSHA256AndMGF1Padding";
+	public static final String RSA_OAEP_SHA384_MGF1 = "RSA/ECB/OAEPWithSHA384AndMGF1Padding";
+	public static final String RSA_OAEP_SHA512_MGF1 = "RSA/ECB/OAEPWithSHA512AndMGF1Padding";
+	public static final String RSA_OAEP_SHA3224_MGF1 = "RSA/ECB/OAEPWithSHA3-224AndMGF1Padding";
+	public static final String RSA_OAEP_SHA3256_MGF1 = "RSA/ECB/OAEPWithSHA3-256AndMGF1Padding";
+	public static final String RSA_OAEP_SHA3384_MGF1 = "RSA/ECB/OAEPWithSHA3-384AndMGF1Padding";
+	public static final String RSA_OAEP_SHA3512_MGF1 = "RSA/ECB/OAEPWithSHA3-512AndMGF1Padding";
+	public static final String RSA_ISO9796 = "RSA/ECB/ISO9796-1Padding";
+	
+	public static final Map<String, Integer> DIMINUTION;
+	static {
+		Map<String, Integer> map = new HashMap<>();
+		map.put(RSAFunctions.RSA_PKCS1, 11);
+		map.put(RSAFunctions.RSA_NO, 0);
+		map.put(RSAFunctions.RSA_OAEP, 42);
+		map.put(RSAFunctions.RSA_OAEP_MD5_MGF1, 34);
+		map.put(RSAFunctions.RSA_OAEP_SHA1_MGF1, 42);
+		map.put(RSAFunctions.RSA_OAEP_SHA224_MGF1, 58);
+		map.put(RSAFunctions.RSA_OAEP_SHA256_MGF1, 66);
+		map.put(RSAFunctions.RSA_OAEP_SHA384_MGF1, 98);
+		map.put(RSAFunctions.RSA_OAEP_SHA512_MGF1, 130);
+		map.put(RSAFunctions.RSA_OAEP_SHA3224_MGF1, 58);
+		map.put(RSAFunctions.RSA_OAEP_SHA3256_MGF1, 66);
+		map.put(RSAFunctions.RSA_OAEP_SHA3384_MGF1, 98);
+		map.put(RSAFunctions.RSA_OAEP_SHA3512_MGF1, 130);
+		DIMINUTION = Collections.unmodifiableMap(map);
+	}
 	
 	public static final String MD5_RSA = "MD5withRSA";
 	public static final String SHA1_RSA = "SHA1WithRSA";
@@ -97,7 +127,7 @@ public class RSAFunctions implements SignFunctions{
     }
 	
 	/**
-	 * 分段加密方法
+	 * 分段加密方法。注意，由于一般情况下不用RSA进行长加密，建议采用AES/DESede等方法。
 	 * @param cipher Cipher对象
 	 * @param keyBitLength 密钥长度
 	 * @param paddingLength 补全方法对最大明文长度的减少值
@@ -169,12 +199,12 @@ public class RSAFunctions implements SignFunctions{
 	 * @throws IllegalBlockSizeException 
 	 * @throws Exception
 	 */
-	public static byte[] encrypt(RSAKey key, String transformation, int paddingDiminution, byte [] input) 
+	public static byte[] encrypt(RSAKey key, String transformation, byte [] input) 
 			throws NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, 
 			InvalidKeyException, IllegalBlockSizeException    {
 		Cipher cipher = Cipher.getInstance(transformation, new BouncyCastleProvider());
 		cipher.init(Cipher.ENCRYPT_MODE, (Key)key);
-		return encrypt(cipher, key.getModulus().bitLength(), paddingDiminution, input);
+		return encrypt(cipher, key.getModulus().bitLength(), DIMINUTION.get(transformation), input);
 	}
 
 	/**
