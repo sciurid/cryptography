@@ -5,6 +5,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.KeyAgreement;
@@ -12,6 +13,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.interfaces.DHPrivateKey;
 import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  * 实现简单DH密钥交换的类
@@ -40,10 +43,11 @@ public class DhKeyExchange {
 	 * 生成发起方密钥对
 	 * @param keySize 密钥长度
 	 * @throws NoSuchAlgorithmException 算法“DH”不存在，实际不应当出现
+	 * @throws NoSuchProviderException 
 	 */
 	public void initialize(int keySize) 
-			throws NoSuchAlgorithmException {
-		KeyPairGenerator kpg = KeyPairGenerator.getInstance(DH_KEY_ALGORITHM);
+			throws NoSuchAlgorithmException, NoSuchProviderException {
+		KeyPairGenerator kpg = KeyPairGenerator.getInstance(DH_KEY_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
 		kpg.initialize(keySize);
 		KeyPair keyPair = kpg.generateKeyPair();
 		this.publicKey = (DHPublicKey) keyPair.getPublic();
@@ -86,10 +90,11 @@ public class DhKeyExchange {
 	 * @return 实际通信的对称加密密钥
 	 * @throws NoSuchAlgorithmException 算法不存在
 	 * @throws InvalidKeyException 密钥不正确
+	 * @throws NoSuchProviderException 
 	 */
 	public static SecretKey createLocalSecretKey(DHPrivateKey priKey, DHPublicKey pubKey, String algorithm) 
-			throws NoSuchAlgorithmException, InvalidKeyException {
-		KeyAgreement ka = KeyAgreement.getInstance(DH_KEY_ALGORITHM);
+			throws NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException {
+		KeyAgreement ka = KeyAgreement.getInstance(DH_KEY_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
     	ka.init(priKey);
     	ka.doPhase(pubKey, true);
     	return ka.generateSecret(algorithm);
@@ -102,10 +107,11 @@ public class DhKeyExchange {
 	 * @return 实际通信的对称加密密钥
 	 * @throws InvalidKeyException 算法不存在
 	 * @throws NoSuchAlgorithmException 密钥不正确
+	 * @throws NoSuchProviderException 
 	 * @see me.chenqiang.crypt.DhKeyExchange#createLocalSecretKey
 	 */
 	public SecretKey createLocalSecretKey(DHPublicKey pubKey, String algorithm) 
-			throws InvalidKeyException, NoSuchAlgorithmException {
+			throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException {
 		return createLocalSecretKey(this.privateKey, pubKey, algorithm);
 	}
 }

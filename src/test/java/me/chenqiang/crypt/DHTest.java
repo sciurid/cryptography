@@ -3,20 +3,25 @@ package me.chenqiang.crypt;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
 
 import javax.crypto.SecretKey;
 import javax.crypto.interfaces.DHPublicKey;
 
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import me.chenqiang.crypt.DhKeyExchange;
-
-import org.junit.Assert;
-
 public class DHTest {
+	@Before
+	public void initialize() {
+		Security.addProvider(new BouncyCastleProvider());
+	}
 	@Test
-	public void exchageKey() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+	public void exchageKey() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException {
 		DhKeyExchange partyA = new DhKeyExchange();
 		partyA.initialize(2048);
 		
