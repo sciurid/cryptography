@@ -1,4 +1,4 @@
-package me.chenqiang.crypt;
+package me.chenqiang.crypt.asymmetric;
 
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -37,7 +37,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  * {@link https://crypto.stackexchange.com/questions/2789/is-rsa-in-a-ecb-like-mode-safe-for-bulk-encryption}
  *
  * 对于长度不足的数据块要进行补齐，补齐方法见静态成员的定义。
- * 除了NoPadding和ZeroBytesPadding以外，其他的补齐方法都要占用数据块长度，见{@link me.chenqiang.crypt.RSAFunctions#DIMINUTION}。
+ * 除了NoPadding和ZeroBytesPadding以外，其他的补齐方法都要占用数据块长度，见{@link me.chenqiang.crypt.asymmetric.RSAFunctions#DIMINUTION}。
  * {@link https://crypto.stackexchange.com/questions/32692/what-is-the-typical-block-size-in-rsa}
  * 
  * 计算公式为 max_block_size = upper(key_size_bits/8) - 2*hash_bytes - 2，例如RSA/None/OAEPWithSHA1AndMGF1Padding，
@@ -162,7 +162,7 @@ public class RSAFunctions implements SignFunctions{
 	 * @throws IllegalBlockSizeException 
 	 */
 			
-	protected static byte [] encrypt(Cipher cipher, int keyBitLength, int paddingLength, byte [] source) 
+	public static byte [] encrypt(Cipher cipher, int keyBitLength, int paddingLength, byte [] source) 
 			throws BadPaddingException, IllegalBlockSizeException {
 		//字节数
 		int keyByteLength = keyBitLength / 8; 
@@ -194,7 +194,7 @@ public class RSAFunctions implements SignFunctions{
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
 	 */
-	protected static byte [] decrypt(Cipher cipher, int keyBitLength, byte [] secret) 
+	public static byte [] decrypt(Cipher cipher, int keyBitLength, byte [] secret) 
 			throws BadPaddingException, IllegalBlockSizeException {
 		int keyByteLength = keyBitLength / 8;
 		//密文游标

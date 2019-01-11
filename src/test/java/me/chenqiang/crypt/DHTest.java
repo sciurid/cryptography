@@ -15,6 +15,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import me.chenqiang.crypt.asymmetric.DhKeyExchange;
+
 public class DHTest {
 	@Before
 	public void initialize() {

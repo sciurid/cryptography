@@ -28,8 +28,8 @@ public interface KeyIOUtils {
 	 */
 	public static PublicKey parseX509(byte [] x509, String algorithm) 
 			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(x509);
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(x509);
         return keyFactory.generatePublic(keySpec);
 	}
 	

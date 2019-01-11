@@ -20,6 +20,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import me.chenqiang.crypt.asymmetric.RSAFunctions;
+import me.chenqiang.crypt.asymmetric.SignFunctions;
+
 public class RSATest {
 	
 	public static final String PLAIN = "噫吁嚱！危乎高哉！蜀道之难，难于上青天。"

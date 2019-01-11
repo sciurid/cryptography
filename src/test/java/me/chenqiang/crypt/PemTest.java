@@ -19,6 +19,8 @@ import org.bouncycastle.pkcs.PKCSException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import me.chenqiang.crypt.asymmetric.RSAFunctions;
+
 
 /**
  * PEM文件读写的单元测试

@@ -1,4 +1,4 @@
-package me.chenqiang.crypt;
+package me.chenqiang.crypt.asymmetric;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -15,6 +15,8 @@ import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import me.chenqiang.crypt.KeyIOUtils;
 
 /**
  * 实现简单DH密钥交换的类
@@ -108,7 +110,7 @@ public class DhKeyExchange {
 	 * @throws InvalidKeyException 算法不存在
 	 * @throws NoSuchAlgorithmException 密钥不正确
 	 * @throws NoSuchProviderException 
-	 * @see me.chenqiang.crypt.DhKeyExchange#createLocalSecretKey
+	 * @see me.chenqiang.crypt.asymmetric.DhKeyExchange#createLocalSecretKey
 	 */
 	public SecretKey createLocalSecretKey(DHPublicKey pubKey, String algorithm) 
 			throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException {

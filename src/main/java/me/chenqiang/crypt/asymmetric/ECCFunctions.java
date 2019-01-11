@@ -1,4 +1,4 @@
-package me.chenqiang.crypt;
+package me.chenqiang.crypt.asymmetric;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
