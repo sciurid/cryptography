@@ -6,6 +6,7 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.interfaces.ECKey;
 
@@ -41,9 +42,9 @@ public class ECCFunctions implements SignFunctions {
 	public static final String SHA512_ECDSA = "SHA512withECDSA";
 	
 	public static KeyPair generateKeyPair(String curveName) 
-			throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+			throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException {
 		ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(curveName);
-		KeyPairGenerator keygen = KeyPairGenerator.getInstance(EC, new BouncyCastleProvider());
+		KeyPairGenerator keygen = KeyPairGenerator.getInstance(EC, BouncyCastleProvider.PROVIDER_NAME);
 		SecureRandom random = new SecureRandom();
 		random.setSeed(System.currentTimeMillis());
 		keygen.initialize(ecSpec, random);
@@ -60,11 +61,13 @@ public class ECCFunctions implements SignFunctions {
 	 * @throws InvalidKeyException 
 	 * @throws BadPaddingException 
 	 * @throws IllegalBlockSizeException 
+	 * @throws NoSuchProviderException 
 	 * @throws Exception
 	 */
 	public static byte[] encrypt(ECKey key,  byte [] input) 
-			throws NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException    {
-		Cipher cipher = Cipher.getInstance(ECIES, new BouncyCastleProvider());
+			throws NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, 
+			InvalidKeyException, IllegalBlockSizeException, NoSuchProviderException    {
+		Cipher cipher = Cipher.getInstance(ECIES, BouncyCastleProvider.PROVIDER_NAME);
 		cipher.init(Cipher.ENCRYPT_MODE, (Key)key);
 		return cipher.doFinal(input);
 	}
@@ -78,11 +81,13 @@ public class ECCFunctions implements SignFunctions {
 	 * @throws InvalidKeyException 
 	 * @throws BadPaddingException 
 	 * @throws IllegalBlockSizeException 
+	 * @throws NoSuchProviderException 
 	 * @throws Exception
 	 */
 	public static byte[] decrypt(ECKey key, byte [] input) 
-			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException  {
-		Cipher cipher = Cipher.getInstance(ECIES, new BouncyCastleProvider());
+			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, 
+			BadPaddingException, IllegalBlockSizeException, NoSuchProviderException  {
+		Cipher cipher = Cipher.getInstance(ECIES, BouncyCastleProvider.PROVIDER_NAME);
 		cipher.init(Cipher.DECRYPT_MODE, (Key)key);
 		return cipher.doFinal(input);
 	}

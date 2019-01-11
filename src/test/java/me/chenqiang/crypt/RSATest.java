@@ -50,7 +50,8 @@ public class RSATest {
 	
 	@Test
 	public void testEcbPkcs1() 
-			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
+			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
+			BadPaddingException, IllegalBlockSizeException, NoSuchProviderException {
 		byte [] source = PLAIN.getBytes("UTF-8");
 		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_PKCS1, source);
 		byte [] dest = RSAFunctions.decrypt(publicKey, RSAFunctions.RSA_PKCS1, secret);
@@ -65,6 +66,7 @@ public class RSATest {
 		String [] transformations = {
 				RSAFunctions.RSA_PKCS1,
 				RSAFunctions.RSA_NO,
+				RSAFunctions.RSA_ZEROBYTES,
 				RSAFunctions.RSA_OAEP,
 				RSAFunctions.RSA_OAEP_MD5_MGF1,
 				RSAFunctions.RSA_OAEP_SHA1_MGF1,
@@ -94,7 +96,8 @@ public class RSATest {
 	}
 	@Test
 	public void testEcbOaep() 
-			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
+			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, 
+			BadPaddingException, IllegalBlockSizeException, NoSuchProviderException {
 		
 		byte [] source = PLAIN.getBytes("UTF-8");
 		byte [] secret = RSAFunctions.encrypt(privateKey, RSAFunctions.RSA_OAEP_SHA256_MGF1, source);

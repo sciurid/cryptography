@@ -6,6 +6,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.security.SignatureException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -14,6 +15,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +43,7 @@ public class ECTest {
 	@Before
 	public void initialize() 
 			throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException {
+		Security.addProvider(new BouncyCastleProvider());
 		KeyPair kp = ECCFunctions.generateKeyPair(ECCFunctions.CURVE25519);
 		this.privateKey = (ECPrivateKey)kp.getPrivate();
 		this.publicKey = (ECPublicKey)kp.getPublic();
@@ -48,7 +51,8 @@ public class ECTest {
 	
 	@Test
 	public void testEncrytion() 
-			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
+			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
+			BadPaddingException, IllegalBlockSizeException, NoSuchProviderException {
 		byte [] source = PLAIN.getBytes("UTF-8");
 		byte [] secret = ECCFunctions.encrypt(this.publicKey, source);
 		byte [] dest = ECCFunctions.decrypt(this.privateKey, secret);

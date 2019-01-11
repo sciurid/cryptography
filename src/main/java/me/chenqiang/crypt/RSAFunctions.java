@@ -7,6 +7,7 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAKey;
 import java.security.interfaces.RSAPrivateCrtKey;
@@ -26,26 +27,50 @@ import javax.crypto.NoSuchPaddingException;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+/**
+ * 调用BouncyCastle实现RSA功能类
+ *
+ * @author CHENQIANG
+ *
+ *
+ * 注意：RSA不适合直接用于加密，而是用于签名和密钥交换。
+ * {@link https://crypto.stackexchange.com/questions/2789/is-rsa-in-a-ecb-like-mode-safe-for-bulk-encryption}
+ *
+ * 对于长度不足的数据块要进行补齐，补齐方法见静态成员的定义。
+ * 除了NoPadding和ZeroBytesPadding以外，其他的补齐方法都要占用数据块长度，见{@link me.chenqiang.crypt.RSAFunctions#DIMINUTION}。
+ * {@link https://crypto.stackexchange.com/questions/32692/what-is-the-typical-block-size-in-rsa}
+ * 
+ * 计算公式为 max_block_size = upper(key_size_bits/8) - 2*hash_bytes - 2，例如RSA/None/OAEPWithSHA1AndMGF1Padding，
+ * 密钥长度2048bits，sha1的hash_size = 20，则max_block_size = 256-20*2-2=214bytes。
+ * 
+ * OAEP算法
+ * {@link https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding}
+ * 
+ * MGF1算法
+ * {@linkhttps://en.wikipedia.org/wiki/Mask_generation_function}
+ * 
+ */
 public class RSAFunctions implements SignFunctions{
 	private RSAFunctions() {}
 	
 	public static final String RSA = "RSA";
 	
-	public static final String RSA_PKCS1 = "RSA/ECB/PKCS1Padding";
-	public static final String RSA_NO = "RSA/ECB/NoPadding";
+	public static final String RSA_PKCS1 = "RSA/None/PKCS1Padding";
+	public static final String RSA_NO = "RSA/None/NoPadding";
+	public static final String RSA_ZEROBYTES = "RSA/None/ZeroBytesPadding";
 	// OAEPPadding的默认值是OAEPWithSHA1AndMGF1Padding
-	public static final String RSA_OAEP = "RSA/ECB/OAEPPadding";
-	public static final String RSA_OAEP_MD5_MGF1 = "RSA/ECB/OAEPWithMD5AndMGF1Padding";
-	public static final String RSA_OAEP_SHA1_MGF1 = "RSA/ECB/OAEPWithSHA1AndMGF1Padding";
-	public static final String RSA_OAEP_SHA224_MGF1 = "RSA/ECB/OAEPWithSHA224AndMGF1Padding";
-	public static final String RSA_OAEP_SHA256_MGF1 = "RSA/ECB/OAEPWithSHA256AndMGF1Padding";
-	public static final String RSA_OAEP_SHA384_MGF1 = "RSA/ECB/OAEPWithSHA384AndMGF1Padding";
-	public static final String RSA_OAEP_SHA512_MGF1 = "RSA/ECB/OAEPWithSHA512AndMGF1Padding";
-	public static final String RSA_OAEP_SHA3224_MGF1 = "RSA/ECB/OAEPWithSHA3-224AndMGF1Padding";
-	public static final String RSA_OAEP_SHA3256_MGF1 = "RSA/ECB/OAEPWithSHA3-256AndMGF1Padding";
-	public static final String RSA_OAEP_SHA3384_MGF1 = "RSA/ECB/OAEPWithSHA3-384AndMGF1Padding";
-	public static final String RSA_OAEP_SHA3512_MGF1 = "RSA/ECB/OAEPWithSHA3-512AndMGF1Padding";
-	public static final String RSA_ISO9796 = "RSA/ECB/ISO9796-1Padding";
+	public static final String RSA_OAEP = "RSA/None/OAEPPadding";
+	public static final String RSA_OAEP_MD5_MGF1 = "RSA/None/OAEPWithMD5AndMGF1Padding";
+	public static final String RSA_OAEP_SHA1_MGF1 = "RSA/None/OAEPWithSHA1AndMGF1Padding";
+	public static final String RSA_OAEP_SHA224_MGF1 = "RSA/None/OAEPWithSHA224AndMGF1Padding";
+	public static final String RSA_OAEP_SHA256_MGF1 = "RSA/None/OAEPWithSHA256AndMGF1Padding";
+	public static final String RSA_OAEP_SHA384_MGF1 = "RSA/None/OAEPWithSHA384AndMGF1Padding";
+	public static final String RSA_OAEP_SHA512_MGF1 = "RSA/None/OAEPWithSHA512AndMGF1Padding";
+	public static final String RSA_OAEP_SHA3224_MGF1 = "RSA/None/OAEPWithSHA3-224AndMGF1Padding";
+	public static final String RSA_OAEP_SHA3256_MGF1 = "RSA/None/OAEPWithSHA3-256AndMGF1Padding";
+	public static final String RSA_OAEP_SHA3384_MGF1 = "RSA/None/OAEPWithSHA3-384AndMGF1Padding";
+	public static final String RSA_OAEP_SHA3512_MGF1 = "RSA/None/OAEPWithSHA3-512AndMGF1Padding";
+	public static final String RSA_ISO9796 = "RSA/None/ISO9796-1Padding";
 	
 	public static final Map<String, Integer> DIMINUTION;
 	static {
@@ -197,12 +222,13 @@ public class RSAFunctions implements SignFunctions{
 	 * @throws InvalidKeyException 
 	 * @throws BadPaddingException 
 	 * @throws IllegalBlockSizeException 
+	 * @throws NoSuchProviderException 
 	 * @throws Exception
 	 */
 	public static byte[] encrypt(RSAKey key, String transformation, byte [] input) 
 			throws NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, 
-			InvalidKeyException, IllegalBlockSizeException    {
-		Cipher cipher = Cipher.getInstance(transformation, new BouncyCastleProvider());
+			InvalidKeyException, IllegalBlockSizeException, NoSuchProviderException    {
+		Cipher cipher = Cipher.getInstance(transformation, BouncyCastleProvider.PROVIDER_NAME);
 		cipher.init(Cipher.ENCRYPT_MODE, (Key)key);
 		return encrypt(cipher, key.getModulus().bitLength(), DIMINUTION.get(transformation), input);
 	}
@@ -216,12 +242,13 @@ public class RSAFunctions implements SignFunctions{
 	 * @throws InvalidKeyException 
 	 * @throws BadPaddingException 
 	 * @throws IllegalBlockSizeException 
+	 * @throws NoSuchProviderException 
 	 * @throws Exception
 	 */
 	public static byte[] decrypt(RSAKey key, String transformation, byte [] input) 
 			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, 
-			BadPaddingException, IllegalBlockSizeException  {
-		Cipher cipher = Cipher.getInstance(transformation, new BouncyCastleProvider());
+			BadPaddingException, IllegalBlockSizeException, NoSuchProviderException  {
+		Cipher cipher = Cipher.getInstance(transformation, BouncyCastleProvider.PROVIDER_NAME);
 		cipher.init(Cipher.DECRYPT_MODE, (Key)key);
 		return decrypt(cipher, key.getModulus().bitLength(), input);
 	}
