@@ -22,7 +22,6 @@ public final class SymmetricConsts {
 	public static final String CBC = "CBC";
 	public static final String CFB = "CFB";
 	public static final String OFB = "OFB";
-	public static final String OFB1 = "OFB1";
 	public static final String OFB8 = "OFB8";
 	public static final String OFB16 = "OFB16";
 	public static final String OFB24 = "OFB24";

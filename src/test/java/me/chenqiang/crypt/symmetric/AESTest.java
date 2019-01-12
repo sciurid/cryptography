@@ -127,7 +127,6 @@ public class AESTest {
 		
 		List<String> modes = new ArrayList<>();
 		modes.addAll(SymmetricConsts.getStreamModes());
-		modes.add(SymmetricConsts.OFB1);
 		modes.add(SymmetricConsts.OFB8);
 		modes.add(SymmetricConsts.OFB16);
 		modes.add(SymmetricConsts.OFB24);
@@ -141,7 +140,7 @@ public class AESTest {
 					byte [] ciphertext = SymmetricFunctions.encrypt(this.key, trans, iv, longPlain);
 					System.out.println(String.format("%-20s:%s", padding, DigestUtils.md5Hex(ciphertext)));
 				}
-				catch(IllegalBlockSizeException e) {
+				catch(Exception e) {
 					System.out.println(String.format("%-20s:%s", padding, e));
 				}
 			}
