@@ -1,5 +1,6 @@
 package me.chenqiang.crypt;
 
+import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -7,6 +8,8 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  * 实现X509.1编码数据和PublicKey，PKCS8编码数据和PrivateKey的转换方法。
@@ -23,12 +26,11 @@ public interface KeyIOUtils {
 	 * @param x509
 	 * @param algorithm
 	 * @return
-	 * @throws InvalidKeySpecException
-	 * @throws NoSuchAlgorithmException
+	 * @throws GeneralSecurityException
 	 */
 	public static PublicKey parseX509(byte [] x509, String algorithm) 
-			throws InvalidKeySpecException, NoSuchAlgorithmException {
-        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+			throws GeneralSecurityException {
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm, BouncyCastleProvider.PROVIDER_NAME);
 		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(x509);
         return keyFactory.generatePublic(keySpec);
 	}
@@ -40,13 +42,12 @@ public interface KeyIOUtils {
 	 * @param pkcs8
 	 * @param algorithm
 	 * @return
-	 * @throws NoSuchAlgorithmException
-	 * @throws InvalidKeySpecException
+	 * @throws GeneralSecurityException
 	 */
 	public static PrivateKey parsePKCS8(byte [] pkcs8, String algorithm) 
-			throws NoSuchAlgorithmException, InvalidKeySpecException {
+			throws GeneralSecurityException {
 		PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(pkcs8);
-        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm, BouncyCastleProvider.PROVIDER_NAME);
         return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
 	}
 }

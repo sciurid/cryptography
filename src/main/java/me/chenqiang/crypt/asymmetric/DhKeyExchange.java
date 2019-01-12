@@ -1,5 +1,6 @@
 package me.chenqiang.crypt.asymmetric;
 
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -26,9 +27,8 @@ import me.chenqiang.crypt.KeyIOUtils;
 public class DhKeyExchange {
 	public static final String DH_KEY_ALGORITHM = "DH";
 	
-	public static final String AES = "AES";
-	public static final String DES = "DES";
-	public static final String DES_EDE ="DESede";
+	public static final int RECOMMENDED_KEY_SIZE = 2048;
+	
 	
 	protected DHPublicKey publicKey;
 	protected DHPrivateKey privateKey;
@@ -44,11 +44,10 @@ public class DhKeyExchange {
 	/**
 	 * 生成发起方密钥对
 	 * @param keySize 密钥长度
-	 * @throws NoSuchAlgorithmException 算法“DH”不存在，实际不应当出现
-	 * @throws NoSuchProviderException 
+	 * @throws GeneralSecurityException
 	 */
 	public void initialize(int keySize) 
-			throws NoSuchAlgorithmException, NoSuchProviderException {
+			throws GeneralSecurityException {
 		KeyPairGenerator kpg = KeyPairGenerator.getInstance(DH_KEY_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
 		kpg.initialize(keySize);
 		KeyPair keyPair = kpg.generateKeyPair();
@@ -63,9 +62,9 @@ public class DhKeyExchange {
 	 * @throws InvalidAlgorithmParameterException 发送方发来的密钥不正确
 	 */
 	public void initialize(DHPublicKey receivedKey) 
-			throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+			throws GeneralSecurityException {
 		DHParameterSpec dhSpec = receivedKey.getParams();
-		KeyPairGenerator kpg = KeyPairGenerator.getInstance(DH_KEY_ALGORITHM);
+		KeyPairGenerator kpg = KeyPairGenerator.getInstance(DH_KEY_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
 		kpg.initialize(dhSpec);
 		KeyPair keyPair = kpg.generateKeyPair();
 		this.publicKey = (DHPublicKey) keyPair.getPublic();
@@ -80,7 +79,7 @@ public class DhKeyExchange {
 	 * @throws InvalidAlgorithmParameterException 发送方发来的密钥不正确
 	 */
 	public void initialize(byte [] x509ReceivedKeyData) 
-			throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException {
+			throws GeneralSecurityException {
         this.initialize((DHPublicKey)KeyIOUtils.parseX509(x509ReceivedKeyData, DH_KEY_ALGORITHM));
 	}
 	

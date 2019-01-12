@@ -15,11 +15,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import me.chenqiang.crypt.symmetric.DESFunctions;
-import me.chenqiang.crypt.symmetric.SymmetricFunctions;
+import me.chenqiang.crypt.SecureRandomFunctions;
 
 public class DESTest {
-	protected final SecureRandom rnd = new SecureRandom();
+	protected final SecureRandom rnd = SecureRandomFunctions.getStrongRandom();
 	
 	protected final String PLAIN_TEXT = "莫听穿林打叶声，何妨吟啸且徐行。竹杖芒鞋轻胜马，谁怕？ 一蓑烟雨任平生。\n" + 
 			"料峭春风吹酒醒，微冷，山头斜照却相迎。回首向来萧瑟处，归去，也无风雨也无晴。";
@@ -30,24 +29,24 @@ public class DESTest {
 	
 	@Test
 	public void testDES16To24() throws GeneralSecurityException, UnsupportedEncodingException {		
-		byte [] k1 = SymmetricFunctions.generateRandomBytes(rnd, 8);
-		byte [] k2 = SymmetricFunctions.generateRandomBytes(rnd, 8);
+		byte [] k1 = SecureRandomFunctions.generateRandomBytes(rnd, 8);
+		byte [] k2 = SecureRandomFunctions.generateRandomBytes(rnd, 8);
 		
-		byte [] plain = SymmetricFunctions.generateRandomBytes(rnd, 8);
+		byte [] plain = SecureRandomFunctions.generateRandomBytes(rnd, 8);
 		byte [] iv = DESFunctions.generateDesIv();
 		
 		String trans = "DESede/OFB/PKCS5Padding";
-		byte [] des3_16 = new byte[DESFunctions.TRIPLE_DES_2_KEY_BITS / 8];
-		byte [] des3_24 = new byte[DESFunctions.TRIPLE_DES_3_KEY_BITS / 8];
-		System.arraycopy(k1, 0, des3_16, 0, 8);
-		System.arraycopy(k2, 0, des3_16, 8, 8);
-		System.arraycopy(des3_16, 0, des3_24, 0, 16);
-		System.arraycopy(k1, 0, des3_24, 16, 8);
+		byte [] tripleDes16 = new byte[DESFunctions.TRIPLE_DES_2_KEY_BITS / 8];
+		byte [] tripleDes24 = new byte[DESFunctions.TRIPLE_DES_3_KEY_BITS / 8];
+		System.arraycopy(k1, 0, tripleDes16, 0, 8);
+		System.arraycopy(k2, 0, tripleDes16, 8, 8);
+		System.arraycopy(tripleDes16, 0, tripleDes24, 0, 16);
+		System.arraycopy(k1, 0, tripleDes24, 16, 8);
 		
-		SecretKey key1 = new SecretKeySpec(des3_16, DESFunctions.DESEDE);
-		Assert.assertArrayEquals(des3_16, key1.getEncoded());
-		SecretKey key2 = new SecretKeySpec(des3_24, DESFunctions.DESEDE);
-		Assert.assertArrayEquals(des3_24, key2.getEncoded());
+		SecretKey key1 = new SecretKeySpec(tripleDes16, DESFunctions.DESEDE);
+		Assert.assertArrayEquals(tripleDes16, key1.getEncoded());
+		SecretKey key2 = new SecretKeySpec(tripleDes24, DESFunctions.DESEDE);
+		Assert.assertArrayEquals(tripleDes24, key2.getEncoded());
 		
 		byte [] cipher1 = SymmetricFunctions.encrypt(key1, trans, iv, plain);
 		byte [] cipher2 = SymmetricFunctions.encrypt(key2, trans, iv, plain);

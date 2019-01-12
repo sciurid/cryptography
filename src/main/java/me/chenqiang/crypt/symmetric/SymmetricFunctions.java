@@ -6,7 +6,6 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
-import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -42,18 +41,7 @@ public interface SymmetricFunctions {
 		return kgen.generateKey();
 	}
 			
-	/**
-	 * 生成随机字节，常用于生成初始向量。
-	 * 
-	 * @param rnd 
-	 * @param size 向量长度
-	 * @return
-	 */
-	public static byte [] generateRandomBytes(Random rnd, int size) {
-		byte [] iv = new byte[size];
-		rnd.nextBytes(iv);
-		return iv;		
-	}	
+
 		
 	/**
 	 * 生成加密器Chipher，不带初始向量。

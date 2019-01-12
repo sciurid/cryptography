@@ -4,8 +4,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public final class Consts {
-	private Consts() {}
+/**
+ * 对称加密的各种工作模式和补全模式
+ * 
+ * 注意，BouncyCastle中的补全模式名称中居然有笔误。
+ * @author CHEN Qiang
+ *
+ */
+public final class SymmetricConsts {
+	private SymmetricConsts() {}
 	
 	public static final String AES = "AES";
 	public static final String DES = "DES";

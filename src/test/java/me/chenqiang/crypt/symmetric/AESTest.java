@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import me.chenqiang.crypt.symmetric.AESFunctions;
-import me.chenqiang.crypt.symmetric.Consts;
+import me.chenqiang.crypt.symmetric.SymmetricConsts;
 import me.chenqiang.crypt.symmetric.SymmetricFunctions;
 
 public class AESTest {
@@ -66,7 +66,7 @@ public class AESTest {
 		
 		byte [] ciphertext;
 		byte [] decrypted;
-		for(String padding : Consts.getPaddings()) {
+		for(String padding : SymmetricConsts.getPaddings()) {
 			String trans = String.format("%s/%s/%s", AESFunctions.AES, "ECB", padding);
 			try {
 				ciphertext = SymmetricFunctions.encrypt(key, trans, longPlain);
@@ -91,8 +91,8 @@ public class AESTest {
 		byte [] iv = AESFunctions.generateAesIv();
 		byte [] ciphertext;
 		byte [] decrypted;
-		for(String mode : Consts.getStreamModes()) {
-			for(String padding : Consts.getPaddings()) {
+		for(String mode : SymmetricConsts.getStreamModes()) {
+			for(String padding : SymmetricConsts.getPaddings()) {
 				String trans = String.format("%s/%s/%s", AESFunctions.AES, mode, padding);
 				try {
 					ciphertext = SymmetricFunctions.encrypt(key, trans, iv, longPlain);
@@ -126,16 +126,16 @@ public class AESTest {
 		byte[] iv = AESFunctions.generateAesIv();
 		
 		List<String> modes = new ArrayList<>();
-		modes.addAll(Consts.getStreamModes());
-		modes.add(Consts.OFB1);
-		modes.add(Consts.OFB8);
-		modes.add(Consts.OFB16);
-		modes.add(Consts.OFB24);
-		modes.add(Consts.OFB128);
+		modes.addAll(SymmetricConsts.getStreamModes());
+		modes.add(SymmetricConsts.OFB1);
+		modes.add(SymmetricConsts.OFB8);
+		modes.add(SymmetricConsts.OFB16);
+		modes.add(SymmetricConsts.OFB24);
+		modes.add(SymmetricConsts.OFB128);
 		
 		for(String mode : modes) {
 			System.out.println(mode);
-			for(String padding : Consts.getPaddings()) {
+			for(String padding : SymmetricConsts.getPaddings()) {
 				try {
 					String trans = String.format("AES/%s/%s", mode, padding);
 					byte [] ciphertext = SymmetricFunctions.encrypt(this.key, trans, iv, longPlain);
@@ -188,9 +188,9 @@ public class AESTest {
 	public void testStream() {
 		System.out.println("----------------------------STREAM TEST---------------------------------------");
 		
-		for(String mode : Consts.getStreamModes()) {
+		for(String mode : SymmetricConsts.getStreamModes()) {
 			System.out.println(mode);
-			for(String padding : Consts.getPaddings()) {
+			for(String padding : SymmetricConsts.getPaddings()) {
 				try {
 					if(this.testSingleStream(mode, padding)) {
 						System.out.println(String.format("%-20s:SUCCESS", padding));
