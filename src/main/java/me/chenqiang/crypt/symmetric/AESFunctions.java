@@ -11,6 +11,8 @@ import javax.crypto.spec.GCMParameterSpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import me.chenqiang.crypt.SecureRandomFunctions;
+
 /**
  * 调用BouncyCastle实现AES加解密的类
  * 
@@ -42,9 +44,9 @@ public class AESFunctions implements SymmetricFunctions{
 	private AESFunctions() {
 		
 	}
-	public static final String AES = Consts.AES;
+	public static final String AES = SymmetricConsts.AES;
 	public static final int AES_BLOCK_SIZE = 16;
-	public static final int DEFAULT_AES_KEY_SIZE = 256;
+	public static final int RECOMMENDED_AES_KEY_SIZE = 256;
 	
 	/**
 	 * 用于生成密钥的随机数发生器，以类静态成员方式共享。
@@ -61,16 +63,8 @@ public class AESFunctions implements SymmetricFunctions{
 	 * 
 	 * 
 	 */
-	private static final SecureRandom KEY_RND;
-	private static final SecureRandom IV_RND;
-	static {
-		try {
-			KEY_RND = SecureRandom.getInstanceStrong();
-			IV_RND  = new SecureRandom();
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException("NO STRONG SECURE RANDOM", e);
-		}
-	}
+	private static final SecureRandom KEY_RND = SecureRandomFunctions.getStrongRandom();
+	private static final SecureRandom IV_RND  = new SecureRandom();
 	
 	public static SecretKey generateAesKey(int keysize) 
 			throws NoSuchAlgorithmException, NoSuchProviderException {
@@ -79,7 +73,7 @@ public class AESFunctions implements SymmetricFunctions{
 	
 	public static SecretKey generateAesKey() 
 			throws NoSuchAlgorithmException, NoSuchProviderException {
-		return generateAesKey(DEFAULT_AES_KEY_SIZE);
+		return generateAesKey(RECOMMENDED_AES_KEY_SIZE);
 	}
 	
 	/**
@@ -87,23 +81,21 @@ public class AESFunctions implements SymmetricFunctions{
 	 */
 	
 	protected static byte [] generateIv(int size) {
-		return SymmetricFunctions.generateRandomBytes(IV_RND, size);		
+		return SecureRandomFunctions.generateRandomBytes(IV_RND, size);		
 	}
 	
 	public static byte [] generateAesIv() {
 		return generateIv(AES_BLOCK_SIZE);
-	}
-
-	
+	}	
 		
 	public static final String AES_GCM = "AES/GCM/NoPadding";
 	//Recommended by NIST, more or less length will cause extra calculation.
-	public static final int DEFAULT_GCM_IV_SIZE = 12;
+	public static final int RECOMMENDED_GCM_IV_SIZE = 12;
 	//Tag length of 128, 120, 112, 104, 96, 64, 32 is valid. 128 is recommended.
-	public static final int DEFAULT_GCM_TAG_SIZE = 128;
+	public static final int RECOMMENDED_GCM_TAG_SIZE = 128;
 	
-	public static final byte [] generateGcmIv() throws NoSuchAlgorithmException {
-		return generateIv(DEFAULT_GCM_IV_SIZE);
+	public static final byte [] generateGcmIv() {
+		return generateIv(RECOMMENDED_GCM_IV_SIZE);
 	}
 	
 	/**
@@ -137,7 +129,7 @@ public class AESFunctions implements SymmetricFunctions{
 	 */
 	public static byte [] encryptGcm(SecretKey key, byte [] iv, byte [] associated, byte [] plaintext) 
 			throws GeneralSecurityException {
-		return encryptGcm(key, iv, associated, DEFAULT_GCM_TAG_SIZE, plaintext);
+		return encryptGcm(key, iv, associated, RECOMMENDED_GCM_TAG_SIZE, plaintext);
 	}
 	
 	/**
@@ -170,6 +162,6 @@ public class AESFunctions implements SymmetricFunctions{
 	 */
 	public static byte [] decryptGcm(SecretKey key, byte [] iv, byte [] associated, byte [] ciphertext) 
 			throws GeneralSecurityException {
-		return decryptGcm(key, iv, associated, DEFAULT_GCM_TAG_SIZE, ciphertext);
+		return decryptGcm(key, iv, associated, RECOMMENDED_GCM_TAG_SIZE, ciphertext);
 	}
 }

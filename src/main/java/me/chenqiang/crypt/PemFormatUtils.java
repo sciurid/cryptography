@@ -90,9 +90,7 @@ public final class PemFormatUtils {
 	 */
 	public static void writePrivateKeyToPkcs8Pem(PrivateKey privateKey, char [] password, Writer writer) 
 			throws IOException, OperatorCreationException {
-		SecureRandom random = new SecureRandom();
-		random.setSeed(System.currentTimeMillis());
-		
+		SecureRandom random = new SecureRandom();		
 		JceOpenSSLPKCS8EncryptorBuilder encryptorBuilder = new JceOpenSSLPKCS8EncryptorBuilder(PKCS8Generator.PBE_SHA1_3DES);
 	    encryptorBuilder.setRandom(random);
 	    encryptorBuilder.setPasssword(password);

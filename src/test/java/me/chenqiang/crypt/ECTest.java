@@ -1,27 +1,19 @@
 package me.chenqiang.crypt;
 
 import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.Security;
-import java.security.SignatureException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import me.chenqiang.crypt.asymmetric.AsymmetricFunctions;
 import me.chenqiang.crypt.asymmetric.ECCFunctions;
-import me.chenqiang.crypt.asymmetric.SignFunctions;
 
 public class ECTest {
 	
@@ -45,17 +37,16 @@ public class ECTest {
 	
 	@Before
 	public void initialize() 
-			throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException {
+			throws GeneralSecurityException {
 		Security.addProvider(new BouncyCastleProvider());
-		KeyPair kp = ECCFunctions.generateKeyPair(ECCFunctions.CURVE25519);
+		KeyPair kp = ECCFunctions.generateKeyPair(ECCFunctions.Curve.CURVE25519);
 		this.privateKey = (ECPrivateKey)kp.getPrivate();
 		this.publicKey = (ECPublicKey)kp.getPublic();
 	}
 	
 	@Test
 	public void testEncrytion() 
-			throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
-			BadPaddingException, IllegalBlockSizeException, NoSuchProviderException {
+			throws UnsupportedEncodingException, GeneralSecurityException {
 		byte [] source = PLAIN.getBytes("UTF-8");
 		byte [] secret = ECCFunctions.encrypt(this.publicKey, source);
 		byte [] dest = ECCFunctions.decrypt(this.privateKey, secret);
@@ -65,11 +56,11 @@ public class ECTest {
 	}
 	
 	@Test
-	public void testSignature() throws UnsupportedEncodingException, InvalidKeyException, SignatureException, NoSuchAlgorithmException {
+	public void testSignature() throws UnsupportedEncodingException, GeneralSecurityException {
 		byte [] source = PLAIN.getBytes("UTF-8");
 		for(String algorithm : new String[] {"NONEwithECDSA", "SHA1withECDSA", "SHA224withECDSA", "SHA256withECDSA", "SHA384withECDSA", "SHA512withECDSA"}) {
-			byte [] sig = SignFunctions.sign(privateKey, source, algorithm);
-			boolean result = SignFunctions.verify(publicKey, source, sig, algorithm);
+			byte [] sig = AsymmetricFunctions.sign(privateKey, source, algorithm);
+			boolean result = AsymmetricFunctions.verify(publicKey, source, sig, algorithm);
 			Assert.assertTrue("签名错误", result);
 		}		
 	}
