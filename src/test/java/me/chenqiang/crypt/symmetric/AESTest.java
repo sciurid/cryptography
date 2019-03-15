@@ -16,7 +16,6 @@ import java.util.Random;
 import javax.crypto.AEADBadTagException;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -27,10 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import me.chenqiang.crypt.symmetric.AESFunctions;
-import me.chenqiang.crypt.symmetric.SymmetricConsts;
-import me.chenqiang.crypt.symmetric.SymmetricFunctions;
 
 public class AESTest {
 	protected SecretKey key;

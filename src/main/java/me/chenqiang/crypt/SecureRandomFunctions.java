@@ -13,26 +13,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SecureRandomFunctions {
 	private SecureRandomFunctions() {}
-	public static class SecureRandomException extends Error{
+	public static class SecureRandomError extends Error{
 		private static final long serialVersionUID = 6573746562529758358L;
 
-		public SecureRandomException() {
+		public SecureRandomError() {
 			super();
 		}
 
-		public SecureRandomException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+		public SecureRandomError(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 			super(message, cause, enableSuppression, writableStackTrace);
 		}
 
-		public SecureRandomException(String message, Throwable cause) {
+		public SecureRandomError(String message, Throwable cause) {
 			super(message, cause);
 		}
 
-		public SecureRandomException(String message) {
+		public SecureRandomError(String message) {
 			super(message);
 		}
 
-		public SecureRandomException(Throwable cause) {
+		public SecureRandomError(Throwable cause) {
 			super(cause);
 		}
 	}
@@ -43,7 +43,7 @@ public class SecureRandomFunctions {
 		try {
 			return SecureRandom.getInstanceStrong();
 		} catch (NoSuchAlgorithmException e) {
-			throw new SecureRandomException(e);
+			throw new SecureRandomError(e);
 		}
 	}
 
@@ -76,7 +76,7 @@ public class SecureRandomFunctions {
 		
 		RESEED_COUNTDOWN.decrementAndGet();
 		if(RESEED_COUNTDOWN.compareAndSet(0, MAX_RESEED_COUNT)) {
-			SHARED_STATIC_RND.reseed();
+			SHARED_STATIC_RND.setSeed(SecureRandom.getSeed(16));
 		}		
 		return data;		
 	}	
