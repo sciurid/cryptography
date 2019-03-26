@@ -13,6 +13,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import me.chenqiang.crypt.SecureRandomFunctions;
 
 /**
@@ -39,6 +42,7 @@ import me.chenqiang.crypt.SecureRandomFunctions;
  * 
  */
 public class RSAFunctions {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RSAFunctions.class);
 	private RSAFunctions() {}
 	
 	public static final String RSA = "RSA";
@@ -50,10 +54,17 @@ public class RSAFunctions {
 	protected static final int HIGH_SECURITY_SIZE = 2048;
 	protected static final int VERY_HIGH_SECURITY_SIZE = 4096;
 	
-	public static KeyPair generateKeyPair(int keySize) throws NoSuchAlgorithmException {
-		KeyPairGenerator keygen = KeyPairGenerator.getInstance(RSAFunctions.RSA);
-		keygen.initialize(keySize, KEY_RND);
-		return keygen.generateKeyPair();
+	public static KeyPair generateKeyPair(int keySize) {
+		KeyPairGenerator keygen;
+		try {
+			keygen = KeyPairGenerator.getInstance(RSAFunctions.RSA);
+			keygen.initialize(keySize, KEY_RND);
+			return keygen.generateKeyPair();
+		} catch (NoSuchAlgorithmException e) {
+			LOGGER.error(e.getMessage());
+			LOGGER.error("IMPOSSIBLE: RSA DOES NOT EXIST.");
+			throw new AssertionError(e);
+		}
 	}
 	
 	public static RSAPrivateKey createPrivateKey(final BigInteger modulus, final BigInteger privateComponent) 
