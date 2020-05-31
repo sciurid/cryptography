@@ -1,8 +1,15 @@
 package me.chenqiang.crypt.sm;
 
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.crypto.engines.SM2Engine;
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.crypto.signers.SM2Signer;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,18 +29,36 @@ public class SM2TestCase {
 			+ "锦城虽云乐，不如早还家。\n"
 			+ "蜀道之难，难于上青天，侧身西望长咨嗟。\n";
 	
-	protected String privateKey;
-	protected String publicKey;
+	protected ECPrivateKeyParameters privateKey;
+	protected ECPublicKeyParameters publicKey;
 	
 	@Before
 	public void generateKeys() throws NoSuchAlgorithmException {
-		Pair<String, String> kp = SM2Functions.generateEncodedKeyPair();
+		Pair<ECPublicKeyParameters, ECPrivateKeyParameters> kp = SM2Functions.generateCastedKeyPair();
 		this.publicKey = kp.getLeft();
 		this.privateKey = kp.getRight();
 	}
 	
 	@Test
-	public void test() {
-		return;
+	public void testSignature() throws UnsupportedEncodingException, CryptoException {
+		SM2Signer signer = new SM2Signer();
+		signer.init(true, this.privateKey);
+		byte [] plain = PLAIN.getBytes("UTF-8");
+		signer.update(plain, 0, plain.length);
+		
+		//形成的ASN.1格式的（R,S）签名
+		byte [] sigBc = signer.generateSignature();
+		System.out.println(Hex.toHexString(sigBc));
+		
+		SM2Signer verifier = new SM2Signer();
+		verifier.init(false, this.publicKey);
+		verifier.update(plain, 0, plain.length);
+		System.out.println(verifier.verifySignature(sigBc));
+	}
+	
+	
+	public void encrypt() {
+		SM2Engine engine = new SM2Engine();
+		
 	}
 }
